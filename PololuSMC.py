@@ -19,44 +19,37 @@ class MotorController(object):
         self.device_count = device_count
         self.smcs = []
         for i in range(4):
-                        smc = SmcG2Serial(port, i)
-                        self.smcs.append(smc)
+            smc = SmcG2Serial(self.port, i)
+            self.smcs.append(smc)
         self.debug_log("Success!\n")
-         
-        target_speed = smc.get_target_speed()
-        print("Target speed is {}.".format(target_speed))
-         
-        new_speed = 3200 if target_speed <= 0 else -3200
-        print("Setting target speed to {}.\n".format(new_speed));
-        smc.set_target_speed(new_speed)
 
     def exit_safe_start(self,ID):
         self.debug_log("Safe starting motor {}".format(ID))
-        smcs[ID].exit_safe_start()
+        self.smcs[ID].exit_safe_start()
     
     def get_error_status(self, ID):
         status= smcs[ID].get_error_status()
         self.debug_log("Error status: 0x{:04X}".format(status))
 
     def get_target_speed(self, ID):
-        speed = smcs[ID].get_target_speed()
+        speed = self.smcs[ID].get_target_speed()
 
     def set_target_speed(self, ID, speed):
-        smcs[ID].set_target_speed(new_speed)
+        self.smcs[ID].set_target_speed(speed)
 
     def get_variable(self, ID, variable_id, signed=False):
         if(signed):
-            return smc[ID].get_variable(variable_id)
+            return self.smc[ID].get_variable(variable_id)
         else:
-            return smc[ID].get_variable_signed(variable_id)
+            return self.smc[ID].get_variable_signed(variable_id)
 
     def safe_start_all(self):
-            for ID in range(len(smcs)):
-                    self.exit_safe_start(ID)
+        for ID in range(len(self.smcs)):
+            self.exit_safe_start(ID)
 
     def debug_log(self, msg):
-            if(self.debug):
-                    print(msg)
+        if(self.debug):
+            print(msg)
  
 class SmcG2Serial(object):
     def __init__(self, port, device_number=None):
@@ -67,7 +60,7 @@ class SmcG2Serial(object):
         if self.device_number == None:
             header = [cmd]  # Compact protocol
         else:
-            header = [0xAA, device_number, cmd & 0x7F]  # Pololu protocol
+            header = [0xAA, self.device_number, cmd & 0x7F]  # Pololu protocol
         self.port.write(header + list(data_bytes))
  
   # Sends the Exit Safe Start command, which is required to drive the motor.
@@ -108,16 +101,3 @@ class SmcG2Serial(object):
   # See the user's guide for definitions of the different error bits.
     def get_error_status(self):
         return self.get_variable(0)
- 
-# Choose the serial port name.
-# Linux USB example:  "/dev/ttyACM0"  (see also: /dev/serial/by-id)
-# macOS USB example:  "/dev/cu.usbmodem001234562"
-# Windows example:    "COM6"
-port_name = "/dev/ttyS0"
- 
-# Choose the baud rate (bits per second).  This does not matter if you are
-# connecting to the SMC over USB.  If you are connecting via the TX and RX
-# lines, this should match the baud rate in the SMC's serial settings.
-baud_rate = 9600
- 
-control = MotorController(port_name, baud_rate=baud_rate, debug=True)
