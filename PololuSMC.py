@@ -26,22 +26,117 @@ class MotorController(object):
     def exit_safe_start(self,ID):
         self.debug_log("Safe starting motor {}".format(ID))
         self.smcs[ID].exit_safe_start()
+        return status
     
-    def get_error_status(self, ID):
-        status= smcs[ID].get_error_status()
-        self.debug_log("Error status: 0x{:04X}".format(status))
+    def get_error_status(self, ID, log=False):
+        status = self.smcs[ID].get_error_status()
+        if(log):
+            msg = []
+            if(status&1):
+                msg.append("Safe Start Violation")
+            if(status>>1&1):
+                msg.append("Required channel invalid")
+            if(status>>2&1):
+                msg.append("Serial error")
+            if(status>>3&1):
+                msg.append("Command timeout")
+            if(status>>4&1):
+                msg.append("Limit/kill switch")
+            if(status>>5&1):
+                msg.append("Low VIN")
+            if(status>>6&1):
+                msg.append("High VIN")
+            if(status>>7&1):
+                msg.append("Over temperature")
+            if(status>>8&1):
+                msg.append("Motor driver error")
+            if(status>>9&1):
+                msg.append("ERR line high")
+            self.debug_log("Motor {} Error status: {}".format(ID,','.join(msg)))
+        return status
 
-    def get_target_speed(self, ID):
+    def get_limit_status(self, ID, log=False):
+        status = self.smcs[ID].get_variable(3)
+        if(log):
+            msg = ""
+            if(status&1):
+                msg.append("Cannot run due to safe start or error")
+            if(status&1):
+                msg.append("Temperature is reducing target speed") 
+            if(status&2):
+                msg.append("Max speed limit is reducing target speed") 
+            if(status&3):
+                msg.append("Starting speed limit is actively reducing target speed to zero")
+            if(status&4):
+                msg.append("Motor speed is not equal to target speed because of acceleration, deceleration, or brake duration limits")
+            if(status&5):
+                msg.append("RC1 is configured as a limit/kill switch and the switch is active)")
+            if(status&6):
+                msg.append("RC2 limit/kill switch is active")
+            if(status&7):
+                msg.append("AN1 limit/kill switch is active")
+            if(status&8):
+                msg.append("AN2 limit/kill switch is active") 
+            if(status&9):
+                msg.append("USB kill switch is active") 
+            self.debug_log("Motor {} Error status: {}".format(ID,"\n".join(msg)))
+        return status
+
+    def get_uptime(self, ID, log=False):
+        time_low = self.smcs[ID].get_variable(28)
+        time_high = self.smcs[ID].get_variable(29)
+        time = time_low + time_high * 65536
+        if(log):
+            self.debug_log("SMC {} has been up for {} ms".format(ID, time))
+        return time
+
+    def get_temperatures(self, ID, log=False):
+        temp_A = self.smcs[ID].get_variable(24)
+        temp_B = self.smcs[ID].get_variable(25)
+        if(log):
+            self.debug_log("SMC {} has average temperature {} C ({}, {})".format(ID, (temp_A+temp_B)/20, temp_A/10, temp_B/10))
+        return (temp_A, temp_B)
+
+    def get_input_voltage(self, ID, log=False):
+        voltage = self.smcs[ID].get_variable(23)
+        if(log):
+            self.debug_log("SMC {} has input voltage {} V".format(ID, voltage/1000))
+        return voltage
+
+    def get_current(self, ID, log=False):
+        current = self.smcs[ID].get_variable(44)
+        if(log):
+            self.debug_log("SMC {} has current {} mA".format(ID, current))
+        return current
+
+    def get_current_speed(self, ID, log=False):
+        speed = self.smcs[ID].get_variable_signed(21)
+        if(log):
+            self.debug_log("Motor {} has current speed {}".format(ID, speed))
+        return speed
+
+    def get_target_speed(self, ID, log=False):
         speed = self.smcs[ID].get_target_speed()
+        if(log):
+            self.debug_log("Motor {} has target speed {}".format(ID, speed))
+        return speed
 
     def set_target_speed(self, ID, speed):
         self.smcs[ID].set_target_speed(speed)
 
     def get_variable(self, ID, variable_id, signed=False):
         if(signed):
-            return self.smc[ID].get_variable(variable_id)
+            return self.smcs[ID].get_variable(variable_id)
         else:
-            return self.smc[ID].get_variable_signed(variable_id)
+            return self.smcs[ID].get_variable_signed(variable_id)
+
+    def stop_all(self):
+        for ID in range(len(self.smcs)):
+            self.smcs[ID].send_command(0x60)
+
+    def brake_all(self):
+        for ID in range(len(self.smcs)):
+            self.set_target_speed(ID, 0)
 
     def safe_start_all(self):
         for ID in range(len(self.smcs)):
