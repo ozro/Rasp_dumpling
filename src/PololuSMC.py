@@ -141,6 +141,9 @@ class MotorController(object):
     def safe_start_all(self):
         for ID in range(len(self.smcs)):
             self.exit_safe_start(ID)
+    def set_all_speeds(self, speeds):
+        for motor in range(self.device_count):
+            self.set_target_speed(motor, speeds[motor])
 
     def debug_log(self, msg):
         if(self.debug):
