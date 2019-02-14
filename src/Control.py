@@ -38,8 +38,6 @@ R3P = False
 L3 = False
 L3P = False
 
-freq = 0.033 #seconds between each update
-
 port_name = "/dev/ttyS0"
 baud_rate = 9600
 controller = MotorController(port_name, baud_rate, debug=True)
@@ -103,18 +101,19 @@ while 1:
 
     if(STARTP):
         controller.safe_start_all()
+
+    MAX_SPEED = 3200
+    MAX_ANG = 1
+    MAX_INPUT = 255
+
+    VX = (float(LX)/MAX_INPUT - 0.5)*2 * MAX_SPEED
+    VY = (float(LY)/MAX_INPUT - 0.5)*2 * MAX_SPEED
+    VA = (float(RX)/MAX_INPUT - 0.5)*2 * MAX_SPEED
     
-    speeds = [0] * 4
-    controller.set_all_speeds(motor, speeds[motor])
+    controller.set_all_speeds(VX, VY, VA)
 
-    msg = """Left axis: ({},{})
-Right axis: ({}, {})
-D-PAD: ({},{})
-A:{}
-B:{}
-X:{}
-Y:{}
-""".format(LX, LY, RX, RY, DX, DY, BA, BB, BX, BY)
+    msg = """Inputs=({0},{1},{2},{3})
+Velocities=({4:.2f}, {5:.2f}, {6:.2f})
+({7:.0f},{8:.0f},{9:.0f},{10:.0f})
+""".format(LX, LY, RX, RY, VX, VY, VA, VY-VX+VA, VY+VX-VA, VY-VX-VA, VY+VX+VA)
     #print(msg)
-
-    time.sleep(freq)
