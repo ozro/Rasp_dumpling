@@ -40,7 +40,7 @@ L3P = False
 
 port_name = "/dev/ttyS0"
 baud_rate = 9600
-controller = MotorController(port_name, baud_rate, debug=True)
+#controller = MotorController(port_name, baud_rate, debug=True)
 
 while 1:
     events = get_gamepad()
@@ -110,7 +110,7 @@ while 1:
     VY = (float(LY)/MAX_INPUT - 0.5)*2 * MAX_SPEED
     VA = (float(RX)/MAX_INPUT - 0.5)*2 * MAX_SPEED
     
-    controller.set_all_speeds(VX, VY, VA)
+    #controller.set_all_speeds(VX, VY, VA)
 
     msg = """Inputs=({0},{1},{2},{3})
 Velocities=({4:.2f}, {5:.2f}, {6:.2f})
