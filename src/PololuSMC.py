@@ -26,7 +26,6 @@ class MotorController(object):
     def exit_safe_start(self,ID):
         self.debug_log("Safe starting motor {}".format(ID))
         self.smcs[ID].exit_safe_start()
-        return status
     
     def get_error_status(self, ID, log=False):
         status = self.smcs[ID].get_error_status()
