@@ -3,6 +3,7 @@ from PololuSMC import MotorController
 import time
 import rospy
 from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import UInt16MultiArray
 
 port_name = "/dev/ttyS0"
 baud_rate = 9600
@@ -19,11 +20,23 @@ def init_control():
     global controller
     controller = MotorController(port_name, baud_rate, debug=True)
     controller.safe_start_all()
+
     rospy.init_node('motor_control')
 
-    rospy.Subscriber("/motor_vel", Float32MultiArray, callback)
+    #rospy.Subscriber("/motor_vel", Float32MultiArray, callback)
+    error_pub = rospy.Publisher("/motor_status/errors", UInt16MultiArray, queue_size=10)
 
-    rospy.spin()
+    rate = rospy.Rate(5)
+    while not rospy.core.is_shutdown():
+        status = [0] * 4
+        for motor in range(4):
+            status[motor] = controller.get_error_status(motor)
+
+        array = UInt16MultiArray()
+        array.data = status
+        error_pub.publish(array) 
+        
+        rate.sleep()
 
 if __name__ == '__main__':
     init_control()
