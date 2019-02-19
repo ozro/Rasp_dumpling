@@ -8,11 +8,11 @@
 import serial
 
 class MotorController(object):
-    def __init__(self, port_name, baud_rate=9600, timeout=0.1, write_timeout=0.1, debug=False, device_count=4):
+    def __init__(self, port_name, baud_rate=9600, timeout=5, write_timeout=0.5, debug=False, device_count=4):
         self.debug = debug
             
         self.debug_log("Opening serial port at {} with baud rate {}...".format(port_name, baud_rate))
-        self.port = serial.Serial(port_name, baud_rate, timeout=timeout, write_timeout=write_timeout)
+        self.port = serial.Serial(port_name, baud_rate, timeout=timeout, write_timeout=write_timeout, stopbits=serial.STOPBITS_TWO)
         self.debug_log("Success!\n")
 
         self.debug_log("Initializing {} motors...".format(device_count))
@@ -24,7 +24,7 @@ class MotorController(object):
         self.debug_log("Success!\n")
 
     def exit_safe_start(self,ID):
-        self.debug_log("Safe starting motor {}".format(ID))
+        #self.debug_log("Safe starting motor {}".format(ID))
         self.smcs[ID].exit_safe_start()
     
     def get_error_status(self, ID, log=False):
@@ -52,7 +52,25 @@ class MotorController(object):
             if(status>>9&1):
                 msg.append("ERR line high")
             self.debug_log("Motor {} Error status: {}".format(ID,','.join(msg)))
+            return status, ','.join(msg)
         return status
+
+    def get_serial_status(self, ID, log=False):
+        status = self.smcs[ID].get_variable(2)
+        if(log):
+            msg = []
+            if(status>>1&1):
+                msg.append("Frame")
+            if(status>>2&1):
+                msg.append("Noise")
+            if(status>>3&1):
+                msg.append("RX overrun")
+            if(status>>4&1):
+                msg.append("Format")
+            if(status>>5&1):
+                msg.append("CRC")
+            self.debug_log("Motor {} Serial status: {}".format(ID,','.join(msg)))
+        return status, ",".join(msg)
 
     def get_limit_status(self, ID, log=False):
         status = self.smcs[ID].get_variable(3)
@@ -79,7 +97,7 @@ class MotorController(object):
             if(status&9):
                 msg.append("USB kill switch is active") 
             self.debug_log("Motor {} Error status: {}".format(ID,"\n".join(msg)))
-        return status
+        return status, '\n'.join(msg)
 
     def get_uptime(self, ID, log=False):
         time_low = self.smcs[ID].get_variable(28)
@@ -181,8 +199,7 @@ class SmcG2Serial(object):
         self.send_command(0xA1, id)
         result = self.port.read(2)
         if len(result) != 2:
-            raise RuntimeError("Expected to read 2 bytes, got {}."
-            .format(len(result)))
+            raise RuntimeError("Expected to read 2 bytes, got {}.".format(len(result)))
         b = bytearray(result)
         return b[0] + 256 * b[1]
  
