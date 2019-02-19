@@ -57,20 +57,22 @@ def init_control():
 
         if(cycle % 1 == 0):
             pub_speeds(speed_pub)
-        if((cycle-1) % 10 == 0):
+        if((cycle-1) % 30 == 0):
             pub_errors(error_pub)
-        if((cycle-2) % 10 == 0):
+        if((cycle-2) % 20 == 0):
             pub_limits(limit_pub)
-        if((cycle-3) % 10 == 0):
+        if((cycle-3) % 1000 == 0):
             pub_targets(target_pub)
-        if((cycle-4) % 100 == 0):
+        if((cycle-4) % 50 == 0):
             pub_temps(temp_pub)
-        if((cycle-5) % 10 == 0):
+        if((cycle-5) % 5 == 0):
             pub_curr(curr_pub)
-        if((cycle-6) % 10 == 0):
+        if((cycle-6) % 5 == 0):
             pub_volt(volt_pub)
 
         cycle += 1
+        if(cycle > 500):
+            cycle = cycle % 500
         rate.sleep()
 
 def pub_errors(pub):
