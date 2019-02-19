@@ -70,7 +70,8 @@ class MotorController(object):
             if(status>>5&1):
                 msg.append("CRC")
             self.debug_log("Motor {} Serial status: {}".format(ID,','.join(msg)))
-        return status, ",".join(msg)
+            return status, ",".join(msg)
+        return status
 
     def get_limit_status(self, ID, log=False):
         status = self.smcs[ID].get_variable(3)
@@ -97,7 +98,8 @@ class MotorController(object):
             if(status&9):
                 msg.append("USB kill switch is active") 
             self.debug_log("Motor {} Error status: {}".format(ID,"\n".join(msg)))
-        return status, '\n'.join(msg)
+            return status, '\n'.join(msg)
+        return status
 
     def get_uptime(self, ID, log=False):
         time_low = self.smcs[ID].get_variable(28)

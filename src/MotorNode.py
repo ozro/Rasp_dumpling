@@ -42,24 +42,50 @@ def init_control():
     rospy.Subscriber("/motor_cmd/brake", Bool, brake_callback)
 
     error_pub = rospy.Publisher("/motor_status/errors", UInt16MultiArray, queue_size=10)
+    limit_pub = rospy.Publisher("/motor_status/limit_status", UInt16MultiArray, queue_size=10)
     target_pub = rospy.Publisher("/motor_status/target_speeds", Int16MultiArray, queue_size=10)
     speed_pub = rospy.Publisher("/motor_status/current_speeds", Int16MultiArray, queue_size=10)
+    temp_pub = rospy.Publisher("/motor_status/temps", UInt16MultiArray, queue_size=10)
+    curr_pub = rospy.Publisher("/motor_status/currents", UInt16MultiArray, queue_size=10)
+    volt_pub = rospy.Publisher("/motor_status/voltages", UInt16MultiArray, queue_size=10)
 
     controller = MotorController(port_name, baud_rate, debug=True)
 
     rate = rospy.Rate(10)
+    cycle = 10
     while not rospy.core.is_shutdown():
 
-        pub_errors(error_pub)
-        pub_targets(target_pub)
-        #pub_speeds(speed_pub)
-        
+        if(cycle % 1 == 0):
+            pub_speeds(speed_pub)
+        if((cycle-1) % 10 == 0):
+            pub_errors(error_pub)
+        if((cycle-2) % 10 == 0):
+            pub_limits(limit_pub)
+        if((cycle-3) % 10 == 0):
+            pub_targets(target_pub)
+        if((cycle-4) % 100 == 0):
+            pub_temps(temp_pub)
+        if((cycle-5) % 10 == 0):
+            pub_curr(curr_pub)
+        if((cycle-6) % 10 == 0):
+            pub_volt(volt_pub)
+
+        cycle += 1
         rate.sleep()
 
 def pub_errors(pub):
     status = [0] * 4
     for motor in range(4):
         status[motor] = controller.get_error_status(motor)
+
+    array = UInt16MultiArray()
+    array.data = status
+    pub.publish(array) 
+
+def pub_limits(pub):
+    status = [0] * 4
+    for motor in range(4):
+        status[motor] = controller.get_limit_status(motor)
 
     array = UInt16MultiArray()
     array.data = status
@@ -81,6 +107,34 @@ def pub_speeds(pub):
 
     array = Int16MultiArray()
     array.data = speeds
+    pub.publish(array) 
+
+def pub_temps(pub):
+    temps = [0] * 4
+    for motor in range(4):
+        (temp_A, temp_B) = controller.get_temperatures(motor)
+        temps[motor] =(temp_A + temp_B)/2
+
+    array = UInt16MultiArray()
+    array.data = temps
+    pub.publish(array) 
+
+def pub_curr(pub):
+    curr = [0] * 4
+    for motor in range(4):
+        curr[motor] = controller.get_current(motor)
+
+    array = UInt16MultiArray()
+    array.data = curr
+    pub.publish(array) 
+
+def pub_volt(pub):
+    volt = [0] * 4
+    for motor in range(4):
+        volt[motor] = controller.get_input_voltage(motor)
+
+    array = UInt16MultiArray()
+    array.data = volt
     pub.publish(array) 
 
 if __name__ == '__main__':
