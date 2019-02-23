@@ -8,7 +8,7 @@
 import serial
 
 class MotorController(object):
-    def __init__(self, port_name, baud_rate=9600, timeout=5, write_timeout=0.5, debug=False, device_count=4):
+    def __init__(self, port_name, baud_rate=9600, timeout=5, write_timeout=0.5, debug=False, device_count=5):
         self.debug = debug
             
         self.debug_log("Opening serial port at {} with baud rate {}...".format(port_name, baud_rate))
@@ -18,9 +18,11 @@ class MotorController(object):
         self.debug_log("Initializing {} motors...".format(device_count))
         self.device_count = device_count
         self.smcs = []
-        for i in range(4):
+        for i in range(device_count-1):
             smc = SmcG2Serial(self.port, i)
             self.smcs.append(smc)
+        smc = SmcG2Serial(self.port, 13)
+        self.smcs.append(smc)
         self.debug_log("Success!\n")
 
     def exit_safe_start(self,ID):

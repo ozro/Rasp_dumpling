@@ -41,8 +41,8 @@ def callback(data):
         brake_pub.publish(brake)
 
     if(not isBraked):
-        max_speed = 0.2 #in m/s
-        max_turn = 0.1  #in rad/s
+        max_speed = 1
+        max_turn = 1
         twist = Twist()
         twist.linear.x = data.axes[1] * max_speed
         twist.linear.y = data.axes[0] * -1 * max_speed 
@@ -51,10 +51,10 @@ def callback(data):
 
 
         speeds = [0] * 4
-        speeds[0] = twist.linear.y-twist.linear.x + twist.angular.z
-        speeds[1] = twist.linear.y+twist.linear.x - twist.angular.z
-        speeds[2] = twist.linear.y-twist.linear.x - twist.angular.z
-        speeds[3] = twist.linear.y+twist.linear.x + twist.angular.z
+        speeds[0] = twist.linear.x-twist.linear.y + twist.angular.z
+        speeds[1] = twist.linear.x+twist.linear.y - twist.angular.z
+        speeds[2] = twist.linear.x-twist.linear.y - twist.angular.z
+        speeds[3] = twist.linear.x+twist.linear.y + twist.angular.z
         array = Float32MultiArray()
         array.data = speeds 
         motor_pub.publish(array)	
