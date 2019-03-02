@@ -14,7 +14,7 @@ max_speed = 1
 def vel_callback(data):
     global controller
     for motor in range(4):
-        speed = int(round(data.data[motor]/max_speed * 3200))
+        speed = int(round(data.data[motor]/max_speed * 1600))
         controller.set_target_speed(motor, speed)
 
 def start_callback(data):

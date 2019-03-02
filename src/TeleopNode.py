@@ -51,10 +51,10 @@ def callback(data):
 
 
         speeds = [0] * 4
-        speeds[0] = twist.linear.x-twist.linear.y + twist.angular.z
-        speeds[1] = twist.linear.x+twist.linear.y - twist.angular.z
-        speeds[2] = twist.linear.x-twist.linear.y - twist.angular.z
-        speeds[3] = twist.linear.x+twist.linear.y + twist.angular.z
+        speeds[0] = twist.linear.y-twist.linear.x + twist.angular.z
+        speeds[1] = twist.linear.y+twist.linear.x - twist.angular.z
+        speeds[2] = twist.linear.y-twist.linear.x - twist.angular.z
+        speeds[3] = twist.linear.y+twist.linear.x + twist.angular.z
         array = Float32MultiArray()
         array.data = speeds 
         motor_pub.publish(array)	

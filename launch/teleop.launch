@@ -2,4 +2,5 @@
     <node pkg="joy" type="joy_node" name="joystick_node"/>
     <node pkg="rasp" type="TeleopNode.py" name="teleop_node"/>
     <node pkg="rasp" type="MotorNode.py" name="motor_node" output="screen"/>
+    <node pkg="rasp" type="EncoderNode.py" name="encoder_node" output="screen"/>
 </launch>
