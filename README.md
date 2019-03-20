@@ -8,6 +8,10 @@ login: pi
 passwd: dumpling  
 ```$ ssh pi@arcpi.wv.cc.cmu.edu```
 
+## SSH using the ssh key
+SSH login: ozro@arcpi.wv.cc.cmu.edu
+The key is on the drive.
+
 ## Turning the RaspberryPi off
 First exit classic mode using `ctrl+D`.
 ```
