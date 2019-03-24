@@ -8,20 +8,28 @@ Plug USB power cable into the Pi. Wait for both red and green LED lights to turn
 SSH Hostname: arcpi.wv.cc.cmu.edu  
 login: pi  
 passwd: dumpling  
-```$ ssh pi@arcpi.wv.cc.cmu.edu```
+```
+$ ssh pi@arcpi.wv.cc.cmu.edu
+```
 
 ### SSH using key
 SSH login: ozro@arcpi.wv.cc.cmu.edu  
 The SSH key file `ubuntu_core` is on Google drive.
 
+### Classic Mode
+To use commands such as `git`, `apt` and any ROS command, we need to enter classic mode.
+```
+$ sudo classic
+...
+(classic) localhost:~$ roscore
+```
+
 ### Turning the Pi off
-First exit classic mode using `ctrl+D`. Then run the shutdown command.
+First exit classic mode by pressing `ctrl+D` or typing the `exit` command. Then run the shutdown command.
 ```
 $ sudo shutdown now
 ```
 Wait for LED lights on the Pi to stop blinking. There should only be a solid red LED left. Unplug the power cable.
-
----
 
 ## Launching the Nodes
 We need to enter "classic" mode to use ROS and other functions such as `apt` and `git`.
@@ -30,7 +38,7 @@ $ sudo classic
 ```
 It is probably a good idea to make sure the code is up to date.
 ```
-(classic) localhost: git pull
+(classic) localhost:~$ git pull
 ```
 If the remote master is not availabe, run `roscore` first in another terminal session.  
 To run the controller node we need elevated privileges because we are accessing GPIO pins.
@@ -40,7 +48,7 @@ To run the controller node we need elevated privileges because we are accessing 
 (classic) localhost:~$ roslaunch rasp teleop.launch
 ```
 ## Node details
-* `joy_node` - Publishes joystick button/axis events
+* `joy_node` - Publishes joystick button/axis events. For details see https://wiki.ros.org/joy.
 * `TeleopNode.py` - Converts joystick events into motor commands. These may need to be adjusted.
   * The `start` button starts the motors
   * The `back` button stops the motors
@@ -64,13 +72,11 @@ To run the controller node we need elevated privileges because we are accessing 
   * Publishers
     * `/motor_status/encoder_counts` Int16MultiArray
 
----
 ## Encoder Data
 Encoder counts per revolution: 134.4
 
----
 ## Motor Controller Details
-Find the user's manual [here](https://www.pololu.com/docs/pdf/0J77/simple_motor_controller_g2.pdf). 
+Find the user's manual here https://www.pololu.com/docs/pdf/0J77/simple_motor_controller_g2.pdf. The mapping follows 5.4 Logitech Wireless Gamepad.
 
 ### LED Feedback
 There are three LEDs on the board:
