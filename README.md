@@ -41,11 +41,20 @@ It is probably a good idea to make sure the code is up to date.
 (classic) localhost:~$ git pull
 ```
 If the remote master is not availabe, run `roscore` first in another terminal session.  
+```
+(classic) localhost:~$ roscore
+```
 To run the controller node we need elevated privileges because we are accessing GPIO pins.
+We also need to run the `pigpio` daemon for the encoder counter to work.
 ```
 (classic) localhost:~$ sudo su
+(classic) localhost:~$ sudo pigpiod
 (classic) localhost:~$ source devel/setup.bash
 (classic) localhost:~$ roslaunch rasp teleop.launch
+```
+The nodes can also be run individually. For example:
+```
+(classic) localhost:~$ rosrun rasp EncoderNode.py
 ```
 ## Node details
 * `joy_node` - Publishes joystick button/axis events. For details see https://wiki.ros.org/joy.
@@ -70,7 +79,7 @@ To run the controller node we need elevated privileges because we are accessing 
     * Voltages `/motor_status/voltages` UInt16MultiArray
 * `EncoderNode.py` - Publishes encoder tick counts
   * Publishers
-    * `/motor_status/encoder_counts` Int16MultiArray
+    * `/motor_status/encoder_counts` Int16MultiArrayStamped
 
 ## Encoder Data
 Encoder counts per revolution: 134.4
