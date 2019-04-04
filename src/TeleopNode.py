@@ -45,16 +45,16 @@ def callback(data):
         max_turn = 1
         twist = Twist()
         twist.linear.x = data.axes[1] * max_speed
-        twist.linear.y = data.axes[0] * -1 * max_speed 
-        twist.angular.z = data.axes[2] * max_turn 
+        twist.linear.y = data.axes[0] * max_speed 
+        twist.angular.z = data.axes[2] * -1 * max_turn 
         vel_pub.publish(twist)	
 
 
         speeds = [0] * 4
-        speeds[0] = twist.linear.y-twist.linear.x + twist.angular.z
-        speeds[1] = twist.linear.y+twist.linear.x - twist.angular.z
-        speeds[2] = twist.linear.y-twist.linear.x - twist.angular.z
-        speeds[3] = twist.linear.y+twist.linear.x + twist.angular.z
+        speeds[0] = twist.linear.x-twist.linear.y - twist.angular.z
+        speeds[1] = twist.linear.x+twist.linear.y - twist.angular.z
+        speeds[2] = - twist.linear.x+twist.linear.y - twist.angular.z
+        speeds[3] = - twist.linear.x-twist.linear.y - twist.angular.z
         array = Float32MultiArray()
         array.data = speeds 
         motor_pub.publish(array)	
