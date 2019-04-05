@@ -3,6 +3,7 @@ from PololuSMC import MotorController
 import time
 import rospy
 from std_msgs.msg import Bool
+from std_msgs.msg import Float32
 from std_msgs.msg import Float32MultiArray
 from std_msgs.msg import UInt16MultiArray
 from std_msgs.msg import Int16MultiArray
@@ -16,6 +17,11 @@ def vel_callback(data):
     for motor in range(4):
         speed = int(round(data.data[motor]/max_speed * 1600))
         controller.set_target_speed(motor, speed)
+
+def tray_callback(data):
+    global controller
+    speed = int(round(data.data[4]/max_speed * 1600))
+    controller.set_target_speed(motor, speed)
 
 def start_callback(data):
     global controller
@@ -38,6 +44,7 @@ def init_control():
     rospy.init_node('motor_control')
 
     rospy.Subscriber("/motor_vel", Float32MultiArray, vel_callback)
+    rospy.Subscriber("/tray_vel", Float32, tray_Callback)
     rospy.Subscriber("/motor_cmd/start", Bool, start_callback)
     rospy.Subscriber("/motor_cmd/brake", Bool, brake_callback)
 
@@ -76,8 +83,8 @@ def init_control():
         rate.sleep()
 
 def pub_errors(pub):
-    status = [0] * 4
-    for motor in range(4):
+    status = [0] * 5
+    for motor in range(5):
         status[motor] = controller.get_error_status(motor)
 
     array = UInt16MultiArray()
@@ -85,8 +92,8 @@ def pub_errors(pub):
     pub.publish(array) 
 
 def pub_limits(pub):
-    status = [0] * 4
-    for motor in range(4):
+    status = [0] * 5
+    for motor in range(5):
         status[motor] = controller.get_limit_status(motor)
 
     array = UInt16MultiArray()
@@ -94,8 +101,8 @@ def pub_limits(pub):
     pub.publish(array) 
 
 def pub_targets(pub):
-    speeds = [0] * 4
-    for motor in range(4):
+    speeds = [0] * 5
+    for motor in range(5):
         speeds[motor] = controller.get_target_speed(motor)
 
     array = Int16MultiArray()
@@ -103,8 +110,8 @@ def pub_targets(pub):
     pub.publish(array) 
 
 def pub_speeds(pub):
-    speeds = [0] * 4
-    for motor in range(4):
+    speeds = [0] * 5
+    for motor in range(5):
         speeds[motor] = controller.get_current_speed(motor)
 
     array = Int16MultiArray()
@@ -112,8 +119,8 @@ def pub_speeds(pub):
     pub.publish(array) 
 
 def pub_temps(pub):
-    temps = [0] * 4
-    for motor in range(4):
+    temps = [0] * 5
+    for motor in range(5):
         (temp_A, temp_B) = controller.get_temperatures(motor)
         temps[motor] =(temp_A + temp_B)/2
 
@@ -122,8 +129,8 @@ def pub_temps(pub):
     pub.publish(array) 
 
 def pub_curr(pub):
-    curr = [0] * 4
-    for motor in range(4):
+    curr = [0] * 5
+    for motor in range(5):
         curr[motor] = controller.get_current(motor)
 
     array = UInt16MultiArray()
@@ -131,8 +138,8 @@ def pub_curr(pub):
     pub.publish(array) 
 
 def pub_volt(pub):
-    volt = [0] * 4
-    for motor in range(4):
+    volt = [0] * 5
+    for motor in range(5):
         volt[motor] = controller.get_input_voltage(motor)
 
     array = UInt16MultiArray()
