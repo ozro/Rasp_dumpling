@@ -64,9 +64,11 @@ The nodes can also be run individually. For example:
   * The `B` button brakes the motors
   * The left stick controls the linear velocity
   * The right stick (moved left or right) controls the rotation
+  * The triggers control the actuator
 * `MotorNode.py` - Sends serial commands to motors and publishes motor status
   * Subscribers
-    * Velocities (float [0,1]) `/motor_vel` Float32MultiArray
+    * Velocities (float [-1,1]) `/motor_vel` Float32MultiArray
+    * Actuator velocity (float [-1,1]) `/tray_vel` Float32
     * Start/Stop (True starts motors, False stops motors) `/motor_cmd/start` Bool
     * Brake (Sets velocities to zero) `/motor_cmd/brake`
   * Publishers (For details see Pololu SMC G2 user manual)
