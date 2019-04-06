@@ -16,7 +16,6 @@ def callback(twist):
     array = Float32MultiArray()
     array.data = speeds 
     motor_pub.publish(array)
-    rospy.loginfo("aaaa")	
 def start_node():
     global motor_pub
     motor_pub = rospy.Publisher('motor_vel', Float32MultiArray, queue_size=1)

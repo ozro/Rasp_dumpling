@@ -18,6 +18,7 @@ def callback(data):
     global motor_pub
     global start_pub
     global brake_pub
+    global tray_pub
     if(isBraked and not data.buttons[2]): #Reset brake flag
         isBraked = False
     if(isStopped and not data.buttons[8]): #Reset stop flag
@@ -77,6 +78,7 @@ def start_node():
     global motor_pub
     global start_pub
     global brake_pub
+    global tray_pub
 
     isBraked = False
     isStopped = False

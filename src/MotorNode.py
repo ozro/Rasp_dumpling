@@ -20,8 +20,8 @@ def vel_callback(data):
 
 def tray_callback(data):
     global controller
-    speed = int(round(data.data[4]/max_speed * 1600))
-    controller.set_target_speed(motor, speed)
+    speed = int(round(data.data/max_speed * 3200))
+    controller.set_target_speed(4, speed)
 
 def start_callback(data):
     global controller
@@ -40,11 +40,13 @@ def brake_callback(data):
     
 def init_control():
     global controller
+    controller = MotorController(port_name, baud_rate, debug=True)
+    controller.stop_all()
 
     rospy.init_node('motor_control')
 
     rospy.Subscriber("/motor_vel", Float32MultiArray, vel_callback)
-    rospy.Subscriber("/tray_vel", Float32, tray_Callback)
+    rospy.Subscriber("/tray_vel", Float32, tray_callback)
     rospy.Subscriber("/motor_cmd/start", Bool, start_callback)
     rospy.Subscriber("/motor_cmd/brake", Bool, brake_callback)
 
@@ -61,21 +63,25 @@ def init_control():
     rate = rospy.Rate(1000)
     cycle = 10
     while not rospy.core.is_shutdown():
+        try:
 
-        if(cycle % 1 == 0):
-            pub_speeds(speed_pub)
-        if((cycle-1) % 2 == 0):
-            pub_errors(error_pub)
-        if((cycle-2) % 100 == 0):
-            pub_limits(limit_pub)
-        if((cycle-3) % 1 == 0):
-            pub_targets(target_pub)
-        if((cycle-4) % 50 == 0):
-            pub_temps(temp_pub)
-        if((cycle-5) % 5 == 0):
-            pub_curr(curr_pub)
-        if((cycle-6) % 5 == 0):
-            pub_volt(volt_pub)
+            if(cycle % 1 == 0):
+                pub_speeds(speed_pub)
+            if((cycle-1) % 2 == 0):
+                pub_errors(error_pub)
+            if((cycle-2) % 100 == 0):
+                pub_limits(limit_pub)
+            if((cycle-3) % 1 == 0):
+                pub_targets(target_pub)
+            if((cycle-4) % 50 == 0):
+                pub_temps(temp_pub)
+            if((cycle-5) % 5 == 0):
+                pub_curr(curr_pub)
+            if((cycle-6) % 5 == 0):
+                pub_volt(volt_pub)
+        except:
+            e = sys.exc_info()[0]
+            rospy.loginfo("Error:%s" % e)
 
         cycle += 1
         if(cycle > 500):
