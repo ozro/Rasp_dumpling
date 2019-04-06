@@ -72,8 +72,8 @@ def start_node():
     isStopped = False
     isStart = False
 
-    vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
-    motor_pub = rospy.Publisher('motor_vel', Float32MultiArray, queue_size=10)
+    vel_pub = rospy.Publisher('cmd_vel', Twist, queue_size=1)
+    motor_pub = rospy.Publisher('motor_vel', Float32MultiArray, queue_size=1)
     start_pub = rospy.Publisher('motor_cmd/start', Bool, queue_size=10)
     brake_pub = rospy.Publisher('motor_cmd/brake', Bool, queue_size=10)
     rospy.Subscriber("joy", Joy, callback)

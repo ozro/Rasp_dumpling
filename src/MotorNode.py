@@ -41,27 +41,27 @@ def init_control():
     rospy.Subscriber("/motor_cmd/start", Bool, start_callback)
     rospy.Subscriber("/motor_cmd/brake", Bool, brake_callback)
 
-    error_pub = rospy.Publisher("/motor_status/errors", UInt16MultiArray, queue_size=10)
-    limit_pub = rospy.Publisher("/motor_status/limit_status", UInt16MultiArray, queue_size=10)
-    target_pub = rospy.Publisher("/motor_status/target_speeds", Int16MultiArray, queue_size=10)
-    speed_pub = rospy.Publisher("/motor_status/current_speeds", Int16MultiArray, queue_size=10)
-    temp_pub = rospy.Publisher("/motor_status/temps", UInt16MultiArray, queue_size=10)
-    curr_pub = rospy.Publisher("/motor_status/currents", UInt16MultiArray, queue_size=10)
-    volt_pub = rospy.Publisher("/motor_status/voltages", UInt16MultiArray, queue_size=10)
+    error_pub = rospy.Publisher("/motor_status/errors", UInt16MultiArray, queue_size=1)
+    limit_pub = rospy.Publisher("/motor_status/limit_status", UInt16MultiArray, queue_size=1)
+    target_pub = rospy.Publisher("/motor_status/target_speeds", Int16MultiArray, queue_size=1)
+    speed_pub = rospy.Publisher("/motor_status/current_speeds", Int16MultiArray, queue_size=1)
+    temp_pub = rospy.Publisher("/motor_status/temps", UInt16MultiArray, queue_size=1)
+    curr_pub = rospy.Publisher("/motor_status/currents", UInt16MultiArray, queue_size=1)
+    volt_pub = rospy.Publisher("/motor_status/voltages", UInt16MultiArray, queue_size=1)
 
     controller = MotorController(port_name, baud_rate, debug=True)
 
-    rate = rospy.Rate(10)
+    rate = rospy.Rate(1000)
     cycle = 10
     while not rospy.core.is_shutdown():
 
         if(cycle % 1 == 0):
             pub_speeds(speed_pub)
-        if((cycle-1) % 30 == 0):
+        if((cycle-1) % 2 == 0):
             pub_errors(error_pub)
-        if((cycle-2) % 20 == 0):
+        if((cycle-2) % 100 == 0):
             pub_limits(limit_pub)
-        if((cycle-3) % 1000 == 0):
+        if((cycle-3) % 1 == 0):
             pub_targets(target_pub)
         if((cycle-4) % 50 == 0):
             pub_temps(temp_pub)
