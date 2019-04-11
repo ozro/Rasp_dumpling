@@ -1,4 +1,5 @@
 #include "PololuSMC.cpp"
+#include <vector>
 
 #include "ros/ros.h"
 
@@ -7,6 +8,8 @@
 #include "std_msgs/Float32MultiArray.h"
 #include "std_msgs/UInt16MultiArray.h"
 #include "std_msgs/Int16MultiArray.h"
+
+using namespace std;
 
 PololuSMC controller;
 
@@ -20,7 +23,7 @@ ros::Publisher volt_pub;
 
 float max_speed = 1;
 void vel_callback(const std_msgs::Float32MultiArray::ConstPtr& msg){
-    for(i=0; i < 4; i++){
+    for(int i=0; i < 4; i++){
         int16_t speed = (int16_t) msg->data[i]*max_speed*1600;
         controller.set_target_speed(i, speed);
     }
@@ -31,20 +34,89 @@ void tray_callback(const std_msgs::Float32::ConstPtr& msg){
 }
 void start_callback(const std_msgs::Bool::ConstPtr& msg){
     if(msg->data){
-        controller.safe_start_all();
         ROS_INFO("Starting all motors");
+        controller.safe_start_all();
     }
     else{
-        controller.stop_all();
         ROS_INFO("Stopping all motors");
+        controller.stop_all();
     }
+}
+void brake_callback(const std_msgs::Bool::ConstPtr& msg){
+    if(msg->data){
+        ROS_INFO("Braking all motors");
+        controller.brake_all();
+    }
+}
+void pub_errors(){
+    vector<uint16_t> status(5);
+    for(int i = 0; i < 5; i++){
+        status[i] = controller.get_error_status(i);
+    }
+    std_msgs::UInt16MultiArray msg;
+    msg.data=status;
+    error_pub.publish(msg);
+}
+void pub_limits(){
+    vector<uint16_t> status(5);
+    for(int i = 0; i < 5; i++){
+        status[i] = controller.get_limit_status(i);
+    }
+    std_msgs::UInt16MultiArray msg;
+    msg.data=status;
+    limit_pub.publish(msg);
+}
+void pub_targets(){
+    vector<int16_t> status(5);
+    for(int i = 0; i < 5; i++){
+        status[i] = controller.get_target_speed(i);
+    }
+    std_msgs::Int16MultiArray msg;
+    msg.data=status;
+    target_pub.publish(msg);
+}
+void pub_speeds(){
+    vector<int16_t> status(5);
+    for(int i = 0; i < 5; i++){
+        status[i] = controller.get_current_speed(i);
+    }
+    std_msgs::Int16MultiArray msg;
+    msg.data=status;
+    speed_pub.publish(msg);
+}
+void pub_temps(){
+    vector<uint16_t> status(5);
+    for(int i = 0; i < 5; i++){
+        status[i] = controller.get_temperatures(i);
+    }
+    std_msgs::UInt16MultiArray msg;
+    msg.data=status;
+    temp_pub.publish(msg);
+}
+void pub_curr(){
+    vector<uint16_t> status(5);
+    for(int i = 0; i < 5; i++){
+        status[i] = controller.get_current(i);
+    }
+    std_msgs::UInt16MultiArray msg;
+    msg.data=status;
+    temp_pub.publish(msg);
+}
+void pub_volt(){
+    vector<uint16_t> status(5);
+    for(int i = 0; i < 5; i++){
+        status[i] = controller.get_input_voltage(i);
+    }
+    std_msgs::UInt16MultiArray msg;
+    msg.data=status;
+    temp_pub.publish(msg);
 }
 
 int main(int argc, char **argv){
-    controller = PololuSMC("/dev/ttyS0");
+    controller = PololuSMC();
     controller.stop_all();
     
-    ros::Init(argc, argv, "motor_control");
+    ros::init(argc, argv, "motor_control");
     ros::NodeHandle nh;
 
     nh.subscribe("/motor_vel", 1, vel_callback);
@@ -93,66 +165,3 @@ int main(int argc, char **argv){
     }
 }
 
-void pub_errors(){
-    uint16_t status[5];
-    for(i = 0; i < 5; i++){
-        status[i] = controller.get_error_status(i);
-    }
-    std_msgs::UInt16MultiArray msg;
-    msg.data=status;
-    error_pub.publish(msg);
-}
-void pub_limits(){
-    uint16_t status[5];
-    for(i = 0; i < 5; i++){
-        status[i] = controller.get_limit_status(i);
-    }
-    std_msgs::UInt16MultiArray msg;
-    msg.data=status;
-    limit_pub.publish(msg);
-}
-void pub_targets(){
-    int16_t status[5];
-    for(i = 0; i < 5; i++){
-        status[i] = controller.get_target_speed(i);
-    }
-    std_msgs::Int16MultiArray msg;
-    msg.data=status;
-    target_pub.publish(msg);
-}
-void pub_speeds(){
-    int16_t status[5];
-    for(i = 0; i < 5; i++){
-        status[i] = controller.get_current_speed(i);
-    }
-    std_msgs::Int16MultiArray msg;
-    msg.data=status;
-    speed_pub.publish(msg);
-}
-void pub_temps(){
-    uint16_t status[5];
-    for(i = 0; i < 5; i++){
-        status[i] = controller.get_temperatures(i);
-    }
-    std_msgs::UInt16MultiArray msg;
-    msg.data=status;
-    temp_pub.publish(msg);
-}
-void pub_curr(){
-    uint16_t status[5];
-    for(i = 0; i < 5; i++){
-        status[i] = controller.get_current(i);
-    }
-    std_msgs::UInt16MultiArray msg;
-    msg.data=status;
-    temp_pub.publish(msg);
-}
-void pub_volt(){
-    uint16_t status[5];
-    for(i = 0; i < 5; i++){
-        status[i] = controller.get_input_voltage(i);
-    }
-    std_msgs::UInt16MultiArray msg;
-    msg.data=status;
-    temp_pub.publish(msg);
-}

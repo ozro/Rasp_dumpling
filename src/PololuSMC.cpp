@@ -12,113 +12,127 @@
 
 using namespace std;
 
-class PololuSMC(object){
-    Public:
+class PololuSMC{
+    public:
 
-	char* port_name = "/dev/ttyS0";
-	int baud_rate = 9600;
-
-	int device_count = 5;
-
+	char* port_name;
+	int baud_rate;
+	int device_count;
 	int fd;
 
-	vector<SMCSerial> smcs(5);
+	vector<SMCSerial> smcs;
 
-	MotorController(){
+	PololuSMC(){
+        //Initialize Data members
+        port_name = (char *)"/dev/ttyS0";
+        baud_rate = 9600;
+        device_count = 5;
+        smcs.reserve(device_count);
+        
 		//Open port
 		printf("Opening serial port on %s with baud rate %d...",
 			port_name, baud_rate);    
-		try{
-			open_serial_port();
-			printf("Success! Port ID: %d", fd);
-		}
-		catch (int e){
-			printf("Failed to open port");
-			throw e; 
-		}
+        fd = -1;
+        while(fd == -1){
+            try{
+                open_serial_port();
+            }
+            catch (int e){
+                printf("Error! Code: %d", e);
+            }
+            if(fd == -1){
+                printf("Failed to open port\n... Trying again in 1 second. \n");
+                unsigned int microseconds = 1e6;
+                usleep(microseconds); 
+            }
+            else{
+                printf("Success! Port ID: %d\n", fd);
+            }
+        }
 		//Construct smc objects
 		printf("Initializing motor objects...");
-		for (int i = 0; i < 4; i++):
+		for (int i = 0; i < 4; i++){
 			smcs[i] = SMCSerial(fd, i); 
+        }
 		smcs[4] = SMCSerial(fd, 13); //Actuator board ID = 13
-		printf("Success!");
+		printf("Success!\n");
 	}
 	void exit_safe_start(int id){
 		smcs[id].exit_safe_start();
 	}
 	uint16_t get_error_status(int id){
 		uint16_t status;
-		success = smcs[id].get_error_status(&status);
+		int success = smcs[id].get_error_status(&status);
 		return status;
 	}
 	uint16_t get_serial_status(int id){
 		uint16_t status;
-		success = smcs[id].get_variable(2, &status);
+		int success = smcs[id].get_variable(2, &status);
 		return status;
 	}
 	uint16_t get_limit_status(int id){
 		uint16_t status;
-		success = smcs[id].get_variable(3, &status);
+		int success = smcs[id].get_variable(3, &status);
 		return status;
 	}
 	uint16_t get_uptime(int id){
 		uint16_t time_low;
 		uint16_t time_high;
-		success = smcs[id].get_variable(28, &time_low);
+		int success = smcs[id].get_variable(28, &time_low);
 		success = smcs[id].get_variable(29, &time_high);
 		return time_low + time_high * 65536;
 	}
 	uint16_t get_temperatures(int id){
 		uint16_t tempA;
 		uint16_t tempB;
-		success = smcs[id].get_variable(24, &tempA);
+		int success = smcs[id].get_variable(24, &tempA);
 		success = smcs[id].get_variable(25, &tempB);
 		return (tempA+tempB)/2;
 	}
 	uint16_t get_input_voltage(int id){
 		uint16_t voltage;
-		success = smcs[id].get_variable(23, &voltage);
+		int success = smcs[id].get_variable(23, &voltage);
 		return voltage;
 	}
 	uint16_t get_current(int id){
 		uint16_t current;
-		success = smcs[id].get_variable(44, &current);
+		int success = smcs[id].get_variable(44, &current);
 		return current;
 	}
 	int16_t get_current_speed(int id){
 		int16_t speed;
-		success = smcs[id].get_current_speed(&speed)
+		int success = smcs[id].get_current_speed(&speed);
 		return speed;
 	}
 	int16_t get_target_speed(int id){
 		int16_t speed;
-		success = smcs[id].get_target_speed(&speed)
+		int success = smcs[id].get_target_speed(&speed);
 		return speed;
 	}
 	void set_target_speed(int id, int16_t speed){
-		success = smcs[id].set_target_speed(speed)
+		int success = smcs[id].set_target_speed(speed);
 	}
 	void stop_all(){
-		for (i = 0; i < smcs.size(); i++){
-			self.smcs[i].send_command(0x60);
+		for (int i = 0; i < smcs.size(); i++){
+			smcs[i].stop_motor();
 		}
 	}
 	void brake_all(){
-		for (i = 0; i < smcs.size(); i++){
-			self.smcs[i].set_target_speed(0);
+		for (int i = 0; i < smcs.size(); i++){
+			smcs[i].set_target_speed(0);
 		}
 	}
 	void safe_start_all(){
-		for (i = 0; i < smcs.size(); i++){
-			self.smcs[i].exit_safe_start();
+		for (int i = 0; i < smcs.size(); i++){
+			smcs[i].exit_safe_start();
 		}
 	}
-	void open_serial_port(){
-		fd = open(device, O_RDWR | O_NOCTTY);
+	int open_serial_port(){
+		fd = open(port_name, O_RDWR | O_NOCTTY);
 
 		//Failed to open port
 		if (fd == -1) {
-			perror(device);
+			perror(port_name);
 			return -1;
 		}
 
@@ -173,4 +187,4 @@ class PololuSMC(object){
 			fd=-1;
 		}
 	} 
-}
+};

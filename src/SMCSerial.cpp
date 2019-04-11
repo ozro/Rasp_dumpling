@@ -24,7 +24,7 @@ class SMCSerial{
 	  ssize_t result = write(fd, buffer, size);
 	  if (result != (ssize_t)size)
 	  {
-		perror("failed to write to port");
+		//perror("failed to write to port");
 		return -1;
 	  }
 	  return 0;
@@ -43,7 +43,7 @@ class SMCSerial{
 		ssize_t r = read(fd, buffer + received, size - received);
 		if (r < 0)
 		{
-		  perror("failed to read from port");
+		  //perror("failed to read from port");
 		  return -1;
 		}
 		if (r == 0)
@@ -55,8 +55,8 @@ class SMCSerial{
 	  }
 	  return received;
 	}
-	int send_command(uint8_t cmd){
-		uint8_t command[] = {0xAA, id, cmd & 0x7F}
+	int send_command(const uint8_t* cmd){
+		uint8_t command[] = {0xAA, id, *cmd & 0x7F};
 		write_port(command, sizeof(command));
 		return 0;
 	}
@@ -108,6 +108,11 @@ class SMCSerial{
 	  const uint8_t command = 0x83;
 	  return send_command(&command);
 	}
+	int stop_motor()
+	{
+	  const uint8_t command = 0x60;
+	  return send_command(&command);
+	}
 	 
 	// Sets the SMC's target speed (-3200 to 3200).
 	// Returns 0 on success, -1 on failure.
@@ -129,4 +134,4 @@ class SMCSerial{
 	 
 	  return send_command(command);
 	}
-}
+};
