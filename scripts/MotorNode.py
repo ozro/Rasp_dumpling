@@ -58,8 +58,6 @@ def init_control():
     curr_pub = rospy.Publisher("/motor_status/currents", UInt16MultiArray, queue_size=1)
     volt_pub = rospy.Publisher("/motor_status/voltages", UInt16MultiArray, queue_size=1)
 
-    controller = MotorController(port_name, baud_rate, debug=True)
-
     rate = rospy.Rate(1000)
     cycle = 10
     while not rospy.core.is_shutdown():
