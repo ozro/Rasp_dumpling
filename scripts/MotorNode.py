@@ -2,6 +2,7 @@
 from PololuSMC import MotorController
 import time
 import rospy
+import sys
 from std_msgs.msg import Bool
 from std_msgs.msg import Float32
 from std_msgs.msg import Float32MultiArray
@@ -40,15 +41,15 @@ def brake_callback(data):
     
 def init_control():
     global controller
+    rospy.init_node('motor_control')
+
     controller = MotorController(port_name, baud_rate, debug=True)
     controller.stop_all()
 
-    rospy.init_node('motor_control')
-
-    rospy.Subscriber("/motor_vel", Float32MultiArray, vel_callback)
-    rospy.Subscriber("/tray_vel", Float32, tray_callback)
-    rospy.Subscriber("/motor_cmd/start", Bool, start_callback)
-    rospy.Subscriber("/motor_cmd/brake", Bool, brake_callback)
+    rospy.Subscriber("/motor_vel", Float32MultiArray, vel_callback, queue_size=3)
+    rospy.Subscriber("/tray_vel", Float32, tray_callback, queue_size=1)
+    rospy.Subscriber("/motor_cmd/start", Bool, start_callback, queue_size=1)
+    rospy.Subscriber("/motor_cmd/brake", Bool, brake_callback, queue_size=10)
 
     error_pub = rospy.Publisher("/motor_status/errors", UInt16MultiArray, queue_size=1)
     limit_pub = rospy.Publisher("/motor_status/limit_status", UInt16MultiArray, queue_size=1)

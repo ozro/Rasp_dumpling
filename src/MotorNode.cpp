@@ -1,5 +1,6 @@
-#include "PololuSMC.cpp"
+#include "PololuSMC.hpp"
 #include <vector>
+#include <math.h>
 
 #include "ros/ros.h"
 
@@ -24,12 +25,12 @@ ros::Publisher volt_pub;
 float max_speed = 1;
 void vel_callback(const std_msgs::Float32MultiArray::ConstPtr& msg){
     for(int i=0; i < 4; i++){
-        int16_t speed = (int16_t) msg->data[i]*max_speed*1600;
+        int16_t speed = (int16_t) round(msg->data[i]*max_speed*1600);
         controller.set_target_speed(i, speed);
     }
 }
 void tray_callback(const std_msgs::Float32::ConstPtr& msg){
-    int16_t speed = (int16_t) msg->data*max_speed*3200;
+    int16_t speed = (int16_t) round(msg->data*max_speed*3200);
     controller.set_target_speed(4, speed);
 }
 void start_callback(const std_msgs::Bool::ConstPtr& msg){
@@ -113,16 +114,20 @@ void pub_volt(){
 }
 
 int main(int argc, char **argv){
-    controller = PololuSMC();
-    controller.stop_all();
-    
-    ros::init(argc, argv, "motor_control");
+    ros::init(argc, argv, "motornode");
     ros::NodeHandle nh;
 
-    nh.subscribe("/motor_vel", 1, vel_callback);
-    nh.subscribe("/tray_vel", 1, tray_callback);
-    nh.subscribe("/motor_cmd/start", 10, start_callback);
-    nh.subscribe("/motor_cmd/brake", 10, brake_callback);
+    ROS_INFO("Starting serial controller...");
+    controller.init_port();
+    ROS_INFO("Stopping all motors...");
+    controller.stop_all();
+    ROS_INFO("Success!");
+    
+    ROS_INFO("Initializing subscribers and publishers...");
+    ros::Subscriber vel_sub = nh.subscribe("/motor_vel", 1, vel_callback);
+    ros::Subscriber tray_sub = nh.subscribe("/tray_vel", 1, tray_callback);
+    ros::Subscriber start_sub = nh.subscribe("/motor_cmd/start", 1, start_callback);
+    ros::Subscriber brake_sub = nh.subscribe("/motor_cmd/brake", 1, brake_callback);
 
     error_pub = nh.advertise<std_msgs::UInt16MultiArray>("/motor_status/errors",1);
     limit_pub = nh.advertise<std_msgs::UInt16MultiArray>("/motor_status/limit_status",1);
@@ -131,11 +136,14 @@ int main(int argc, char **argv){
     temp_pub = nh.advertise<std_msgs::UInt16MultiArray>("/motor_status/temps",1);
     curr_pub = nh.advertise<std_msgs::UInt16MultiArray>("/motor_status/currents",1);
     volt_pub = nh.advertise<std_msgs::UInt16MultiArray>("/motor_status/voltages",1);
+    ROS_INFO("Success!");
 
     ros::Rate rate(1000);
     int cycle = 10;
 
+    ROS_INFO("Starting publishing loop...");
     while(ros::ok()){
+        ros::spinOnce();
         if(cycle % 1 == 0){
             pub_speeds();
         }
@@ -163,5 +171,7 @@ int main(int argc, char **argv){
         }
         rate.sleep();
     }
+    ROS_INFO("Motor Node exiting...");
+    return 0;
 }
 

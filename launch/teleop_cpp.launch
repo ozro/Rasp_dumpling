@@ -1,5 +1,5 @@
 <launch>
-    <node pkg="rasp" type="MotorNode.py" name="motor_node" output="screen"/>
+    <node pkg="rasp" type="motor_node" name="motor_node" output="screen"/>
     <node pkg="rasp" type="EncoderNode.py" name="encoder_node" output="screen"/>
     <node pkg="rasp" type="Control.py" name="control_node" output="screen"/>
     <node pkg="joy" type="joy_node" name="joystick_node"/>
