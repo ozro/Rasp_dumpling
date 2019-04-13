@@ -137,6 +137,9 @@ add_executable(motor_node
     src/MotorNode.cpp
     src/PololuSMC.cpp
     src/SMCSerial.cpp)
+add_executable(encoder_node 
+    src/EncoderNode.cpp
+    src/rotary_encoder.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -151,6 +154,10 @@ add_executable(motor_node
 ## Specify libraries to link a library or executable target against
 target_link_libraries(motor_node
    ${catkin_LIBRARIES}
+)
+target_link_libraries(encoder_node
+   ${catkin_LIBRARIES}
+   pigpio
 )
 
 #############

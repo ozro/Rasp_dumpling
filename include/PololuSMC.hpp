@@ -1,3 +1,5 @@
+#ifndef PololuSMC_HPP
+#define PololuSMC_HPP
 #include <string>
 #include <iostream>
 #include <vector>
@@ -39,3 +41,4 @@ class PololuSMC{
 	void safe_start_all();
 	int open_serial_port();
 };
+#endif

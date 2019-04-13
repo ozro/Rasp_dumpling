@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdio.h>
 
 #include <pigpio.h>
 
@@ -27,11 +28,11 @@ void re_decoder::_pulse(int gpio, int level, uint32_t tick)
 
       if ((gpio == mygpioA) && (level == 1))
       {
-         if (levB) (mycallback)(1);
+         if (levB) (mycallback)(1, mygpioA);
       }
       else if ((gpio == mygpioB) && (level == 1))
       {
-         if (levA) (mycallback)(-1);
+         if (levA) (mycallback)(-1, mygpioA);
       }
    }
 }

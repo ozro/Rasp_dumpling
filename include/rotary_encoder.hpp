@@ -3,11 +3,10 @@
 
 #include <stdint.h>
 
-typedef void (*re_decoderCB_t)(int);
+typedef void (*re_decoderCB_t)(int, int);
 
 class re_decoder
 {
-   int mygpioA, mygpioB, levA, levB, lastGpio;
 
    re_decoderCB_t mycallback;
 
@@ -18,6 +17,7 @@ class re_decoder
 
 
    public:
+   int mygpioA, mygpioB, levA, levB, lastGpio;
 
    re_decoder(int gpioA, int gpioB, re_decoderCB_t callback);
    /*

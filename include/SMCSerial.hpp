@@ -3,6 +3,8 @@
 // NOTE: The Simple Motor Controller's input mode must be set to Serial/USB.
 // NOTE: You must change the 'const char * device' line below.
  
+#ifndef SMCSerial_HPP
+#define SMCSerial_HPP
 #include <fcntl.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -50,3 +52,5 @@ class SMCSerial{
 	// Returns 0 on success, -1 on failure.
 	int set_target_speed(int speed);
 };
+
+#endif

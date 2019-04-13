@@ -110,20 +110,20 @@ void pub_volt(){
     }
     std_msgs::UInt16MultiArray msg;
     msg.data=status;
-    temp_pub.publish(msg);
+    volt_pub.publish(msg);
 }
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "motornode");
     ros::NodeHandle nh;
 
-    ROS_INFO("Starting serial controller...");
+    ROS_INFO("Motor Node: Starting serial controller...");
     controller.init_port();
-    ROS_INFO("Stopping all motors...");
+    printf("Stopping all motors...");
     controller.stop_all();
-    ROS_INFO("Success!");
+    printf("Success!\n");
     
-    ROS_INFO("Initializing subscribers and publishers...");
+    printf("Initializing subscribers and publishers...");
     ros::Subscriber vel_sub = nh.subscribe("/motor_vel", 1, vel_callback);
     ros::Subscriber tray_sub = nh.subscribe("/tray_vel", 1, tray_callback);
     ros::Subscriber start_sub = nh.subscribe("/motor_cmd/start", 1, start_callback);
@@ -136,12 +136,12 @@ int main(int argc, char **argv){
     temp_pub = nh.advertise<std_msgs::UInt16MultiArray>("/motor_status/temps",1);
     curr_pub = nh.advertise<std_msgs::UInt16MultiArray>("/motor_status/currents",1);
     volt_pub = nh.advertise<std_msgs::UInt16MultiArray>("/motor_status/voltages",1);
-    ROS_INFO("Success!");
+    printf("Success!\n");
 
     ros::Rate rate(1000);
     int cycle = 10;
 
-    ROS_INFO("Starting publishing loop...");
+    printf("Starting publishing loop...\n");
     while(ros::ok()){
         ros::spinOnce();
         if(cycle % 1 == 0){
