@@ -1,7 +1,0 @@
-<launch>
-    <node pkg="rasp" type="motor_node" name="motor_node" output="screen"/>
-    <node pkg="rasp" type="Control.py" name="control_node" output="screen"/>
-    <node pkg="joy" type="joy_node" name="joystick_node"/>
-    <node pkg="rasp" type="TeleopNode.py" name="teleop_node"/>
-    <node pkg="rasp" type="encoder_node" name="encoder_node" output="screen"/>
-</launch>
