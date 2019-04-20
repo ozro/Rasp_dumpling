@@ -32,7 +32,7 @@ def init_node():
 
     rospy.init_node('encoder_reader')
     pub = rospy.Publisher("/motor_status/encoder_counts", EncoderCounts, queue_size=10)
-    rate = rospy.Rate(10000)
+    rate = rospy.Rate(1000)
     rospy.loginfo("Initialized encoders")
     while not rospy.core.is_shutdown():
         array = EncoderCounts()
