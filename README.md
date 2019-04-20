@@ -6,15 +6,22 @@ Plug USB power cable into the Pi. Wait for both red and green LED lights to turn
 
 ### SSH using password
 SSH Hostname: arcpi.wv.cc.cmu.edu  
-login: pi  
+login: ozro  
 passwd: dumpling  
 ```
-$ ssh pi@arcpi.wv.cc.cmu.edu
+$ ssh ozro@arcpi.wv.cc.cmu.edu
 ```
 
 ### SSH using key
 SSH login: ozro@arcpi.wv.cc.cmu.edu  
 The SSH key file `ubuntu_core` is on Google drive.
+
+### SSH over ethernet
+If the RaspberryPi is connected to the computer through ethernet, we can connect to it at its static IP. The Pi's IP is `10.42.0.128` and the computer's IP is `10.42.0.1`.
+We can SSH using this static IP.
+```
+$ ssh ozro@10.42.0.128
+```
 
 ### Classic Mode
 To use commands such as `git`, `apt` and any ROS command, we need to enter classic mode.
@@ -48,8 +55,15 @@ To run the controller node we need elevated privileges because we are accessing 
 We also need to run the `pigpio` daemon for the encoder counter to work.
 ```
 (classic) localhost:~$ sudo su
-(classic) localhost:~$ sudo pigpiod
 (classic) localhost:~$ source devel/setup.bash
+```
+We need to export the appropriate variables
+```
+(classic) localhost:~$ export ROS_MASTER_URI=http://10.42.0.1:11311
+(classic) localhost:~$ export ROS_IP=10.42.0.128
+```
+We can then use the launch file to start all required nodes
+```
 (classic) localhost:~$ roslaunch rasp teleop.launch
 ```
 The nodes can also be run individually. For example:
